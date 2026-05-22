@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app.dart';
+import 'utils/window_manager.dart';
 
-void main() {
-  // Ensure bindings before any platform channel calls
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Lock to portrait for consistent upload form UX
+  await DesktopWindowManager.configureWindow();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

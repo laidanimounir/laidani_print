@@ -1,4 +1,5 @@
 // price updates instantly on any option change
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -50,10 +51,27 @@ class _UploadScreenState extends State<UploadScreen> {
     super.dispose();
   }
 
+  // Allowed extensions
+  static const _allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'docx', 'xlsx', 'pptx'];
+  static const _maxFileSize = 50 * 1024 * 1024; // 50MB
+
   Future<void> _submitOrder() async {
     if (_files.isEmpty) {
       _showError('الرجاء اختيار ملف واحد على الأقل');
       return;
+    }
+
+    for (final file in _files) {
+      final ext = file.name.split('.').last.toLowerCase();
+      if (!_allowedExtensions.contains(ext)) {
+        _showError('نوع الملف غير مدعوم: ${file.name}');
+        return;
+      }
+      final size = File(file.path).lengthSync();
+      if (size > _maxFileSize) {
+        _showError('حجم الملف يتجاوز 50 ميغابايت: ${file.name}');
+        return;
+      }
     }
 
     final phoneError = Validators.phone(_phoneController.text);

@@ -12,9 +12,11 @@ import 'screens/customer/track_order_screen.dart';
 import 'screens/customer/upload_screen.dart';
 import 'screens/manager/customers_screen.dart';
 import 'screens/manager/manager_dashboard_screen.dart';
+import 'screens/manager/qr_screen.dart';
 import 'screens/manager/reports_screen.dart';
 import 'screens/manager/settings_screen.dart';
 import 'screens/manager/workers_screen.dart';
+import 'screens/manager/cashier_screen.dart';
 import 'screens/shared/error_screen.dart';
 import 'screens/shared/login_screen.dart';
 import 'screens/shared/splash_screen.dart';
@@ -122,6 +124,14 @@ class LaidaniApp extends StatelessWidget {
       case AppRoutes.managerSettings:
         return MaterialPageRoute(builder: (ctx) =>
             routeGuard(ctx, UserRole.manager, const SettingsScreen()));
+
+      case AppRoutes.managerQr:
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.manager, const QrScreen()));
+
+      case AppRoutes.managerCashier:
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.manager, const CashierScreen()));
 
       default:
         return MaterialPageRoute(

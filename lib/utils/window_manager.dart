@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/widgets.dart';
+import 'package:window_manager/window_manager.dart';
 
 class DesktopWindowManager {
   static bool get isDesktop {
@@ -12,8 +14,12 @@ class DesktopWindowManager {
 
   static Future<void> configureWindow() async {
     if (!isDesktop) return;
-    // Windows runner configuration is handled in windows/runner/main.cpp
-    // This Dart utility provides runtime window management helpers
+    await windowManager.ensureInitialized();
+    await windowManager.setMinimumSize(const Size(1200, 800));
+    await windowManager.setSize(const Size(1200, 800));
+    await windowManager.setTitle('LAIDANI PRINT');
+    await windowManager.center();
+    await windowManager.show();
   }
 
   static String get platformName {

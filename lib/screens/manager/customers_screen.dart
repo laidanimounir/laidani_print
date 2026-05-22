@@ -103,6 +103,59 @@ class _CustomersScreenState extends State<CustomersScreen> {
     }
   }
 
+  Future<void> _showCustomerOrders(Customer customer) async {
+    try {
+      final api = context.read<ApiService>();
+      final data = await api.getCustomerWithOrders(customer.phone);
+      final orders = data['orders'] as List<dynamic>? ?? [];
+      final discount = (data['discount_percent'] as num?)?.toInt() ?? 0;
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(customer.phone, style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.w700)),
+            content: SizedBox(
+              width: 400,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('مجموع الطلبات: ${data['total_orders'] ?? 0}', style: GoogleFonts.cairo()),
+                  Text('المبلغ المدفوع: ${Formatters.priceShort((data['total_spent'] as num?)?.toDouble() ?? 0)}', style: GoogleFonts.cairo()),
+                  if (discount > 0)
+                    Text('نسبة الخصم: ${data['discount_percent']}%', style: GoogleFonts.cairo()),
+                  const Divider(),
+                  Text('سجل الطلبات:', style: GoogleFonts.cairo(fontWeight: FontWeight.w700, fontSize: 14)),
+                  const SizedBox(height: 8),
+                  if (orders.isEmpty)
+                    Text('لا توجد طلبات', style: GoogleFonts.cairo(color: AppColors.textLight)),
+                  ...orders.take(10).map((o) {
+                    final order = o as Map<String, dynamic>;
+                    return ListTile(
+                      dense: true,
+                      title: Text('\u0023${order['order_number'] ?? ''}', style: const TextStyle(fontSize: 13)),
+                      subtitle: Text(Formatters.statusText(order['status'] as String? ?? ''), style: const TextStyle(fontSize: 11)),
+                      trailing: Text(Formatters.priceShort((order['price'] as num?)?.toDouble() ?? 0), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                    );
+                  }),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('\u0625\u063A\u0644\u0627\u0642')),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('\u0641\u0634\u0644 \u062A\u062D\u0645\u064A\u0644 \u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0632\u0628\u0648\u0646'), backgroundColor: AppColors.danger),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -258,6 +311,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                               final c = _filteredCustomers[index];
                                               return ListTile(
                                                 dense: true,
+                                                onTap: () => _showCustomerOrders(c),
                                                 title: Row(
                                                   children: [
                                                     Text(c.phone, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),

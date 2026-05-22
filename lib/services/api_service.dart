@@ -149,6 +149,15 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> getCustomerWithOrders(String phone) async {
+    try {
+      final response = await _dio.get('$_baseUrl/api/customers/$phone');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw ApiException('فشل تحميل تفاصيل الزبون', e.response?.statusCode ?? 0);
+    }
+  }
+
   // ─── Statistics ───
 
   Future<Map<String, dynamic>> getTodayStats() async {
@@ -230,6 +239,14 @@ class ApiService {
     }
   }
 
+  Future<void> editWorker(int workerId, Map<String, dynamic> data) async {
+    try {
+      await _dio.post('$_baseUrl/manager/workers/edit/$workerId', data: data);
+    } on DioException catch (e) {
+      throw ApiException('فشل تعديل العامل', e.response?.statusCode ?? 0);
+    }
+  }
+
   Future<Map<String, dynamic>> getReports({String? range}) async {
     try {
       final response = await _dio.get('$_baseUrl/api/reports', queryParameters: {
@@ -297,6 +314,23 @@ class ApiService {
       await _dio.post('$_baseUrl/manager/settings', data: data);
     } on DioException catch (e) {
       throw ApiException('فشل حفظ الإعدادات', e.response?.statusCode ?? 0);
+    }
+  }
+
+  Future<void> regenerateQr(String pcId) async {
+    try {
+      await _dio.post('$_baseUrl/manager/qr/regenerate/$pcId');
+    } on DioException catch (e) {
+      throw ApiException('فشل إعادة توليد QR', e.response?.statusCode ?? 0);
+    }
+  }
+
+  Future<Map<String, dynamic>> getCashierSummary() async {
+    try {
+      final response = await _dio.get('$_baseUrl/api/cashier/summary');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw ApiException('فشل تحميل محضر الكاشير', e.response?.statusCode ?? 0);
     }
   }
 

@@ -13,4 +13,6 @@ class AppRoutes {
   static const String managerCustomers = '/manager/customers';
   static const String managerCustomerDetail = '/manager/customers/detail';
   static const String managerSettings = '/manager/settings';
+  static const String managerQr = '/manager/qr';
+  static const String managerCashier = '/manager/cashier';
 }
