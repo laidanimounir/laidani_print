@@ -5,6 +5,7 @@ import '../../config/app_config.dart';
 import '../../config/routes.dart';
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/api_service.dart';
 import '../../widgets/custom_button.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -20,6 +21,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _supabaseUrlController = TextEditingController(text: AppConfig.supabaseUrl);
   final _supabaseKeyController = TextEditingController(text: AppConfig.supabaseAnonKey);
   bool _supabaseActive = false;
+
+  Future<void> _saveSettings() async {
+    try {
+      final api = context.read<ApiService>();
+      await api.saveSettings({
+        'shop_name': _shopNameController.text.trim(),
+        'shop_slogan': _sloganController.text.trim(),
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم حفظ الإعدادات بنجاح'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), backgroundColor: AppColors.danger),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('فشل حفظ الإعدادات'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             const SizedBox(height: 16),
                             CustomButton(
                               text: 'حفظ',
-                              onPressed: () {},
+                              onPressed: _saveSettings,
                               type: ButtonType.primary,
                             ),
                           ],

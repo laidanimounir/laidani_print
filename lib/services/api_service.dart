@@ -289,6 +289,14 @@ class ApiService {
       throw ApiException('فشل إنشاء نسخة احتياطية', e.response?.statusCode ?? 0);
     }
   }
+
+  Future<void> saveSettings(Map<String, dynamic> data) async {
+    try {
+      await _dio.post('$_baseUrl/manager/settings', data: data);
+    } on DioException catch (e) {
+      throw ApiException('فشل حفظ الإعدادات', e.response?.statusCode ?? 0);
+    }
+  }
 }
 
 class ApiException implements Exception {
