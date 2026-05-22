@@ -190,6 +190,14 @@ class ApiService {
     }
   }
 
+  Future<void> logout() async {
+    try {
+      await _dio.post('$_baseUrl/api/logout');
+    } on DioException {
+      // logout should succeed even if server unreachable
+    }
+  }
+
   // ─── Manager Operations ───
 
   Future<List<Worker>> getWorkers() async {

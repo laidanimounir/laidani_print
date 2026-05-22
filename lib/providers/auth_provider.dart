@@ -150,6 +150,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    try {
+      await _apiService.logout();
+    } catch (_) {}
     _currentWorker = null;
     _role = UserRole.customer;
     _inactivityTimer?.cancel();
