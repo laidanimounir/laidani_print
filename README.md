@@ -1,0 +1,193 @@
+// v1.0.0 � core system complete
+# 🖨️ LAIDANI PRINT — Smart Print Shop App
+
+[![Flutter](https://img.shields.io/badge/Flutter-3.35-blue)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.9-teal)](https://dart.dev)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows-lightgrey)](https://flutter.dev)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+> Smart Flutter application for LAIDANI PHONE print shop in Algeria.
+> One codebase — three roles — two platforms.
+
+---
+
+## 📱 Screenshots
+
+| Customer (Mobile) | Worker (Desktop) | Manager (Desktop) |
+|:---:|:---:|:---:|
+| Upload files, track orders | Real-time queue, printing | Dashboard, reports, analytics |
+| *[screenshot]* | *[screenshot]* | *[screenshot]* |
+
+---
+
+## 🏗 Architecture
+
+```
+┌──────────────┐     ┌──────────────────┐     ┌──────────────┐
+│  Flutter App  │────▶│  Flask Backend   │────▶│    SQLite    │
+│  (Mobile +    │     │  (Local Network) │     │   Database   │
+│   Desktop)    │     └──────────────────┘     └──────────────┘
+│              │                │
+│              │     ┌──────────────────┐
+│              │────▶│    Supabase      │
+│              │     │  (When Remote)   │
+└──────────────┘     └──────────────────┘
+```
+
+### Connection Flow
+- **On shop WiFi**: App communicates with local Flask server (`192.168.1.10X:5000`)
+- **Outside shop**: App falls back to Supabase cloud backend
+- Auto-detection with 30-second polling
+- Visual indicator: 🟢 Local / 🔵 Remote / 🔴 Offline
+
+---
+
+## ✨ Features
+
+### 📱 Customer (Mobile)
+- Multi-file upload (PDF, images, Office documents)
+- Live price calculation (BW/Color, A4/A3)
+- Recto-Verso (duplex) printing option
+- Real-time order tracking with progress steps
+- Push notifications when order is ready
+- Connection status indicator
+- Arabic RTL interface
+
+### 💻 Worker (Windows Desktop)
+- Real-time order queue (3-second polling)
+- Direct Windows printing integration
+- Smart duplex printing (odd/even page separation)
+- Order transfer between stations
+- Payment tracking (cash/card/free)
+- New order sound notifications
+- Filter by status + search
+- Dark professional POS-style UI
+
+### 🖥️ Manager (Windows Desktop)
+- Full statistics dashboard (orders, pages, revenue)
+- Station load balancing with progress bars
+- Worker management (add, delete, reassign)
+- Reports with charts (daily, weekly, monthly)
+- Customer loyalty system (auto-discounts, VIP)
+- Manual discount adjustment
+- Backup management
+- Supabase configuration
+
+---
+
+## 🚀 Setup
+
+### Prerequisites
+- Flutter SDK 3.35+ ([install guide](https://docs.flutter.dev/get-started/install))
+- Dart 3.9+
+- For Windows builds: Visual Studio 2022 with C++ workload
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/your-org/laidani_print.git
+cd laidani_print
+
+# Install dependencies
+flutter pub get
+
+# Run on connected device
+flutter run
+
+# Run on Windows desktop
+flutter run -d windows
+```
+
+### Configuration
+Edit `lib/config/app_config.dart`:
+```dart
+// Set your local Flask server IPs
+static const Map<String, String> computerIPs = {
+  'PC1': 'http://192.168.1.101:5000',
+  'PC2': 'http://192.168.1.102:5000',
+  'PC3': 'http://192.168.1.103:5000',
+  'PC4': 'http://192.168.1.104:5000',
+};
+
+// Set Supabase credentials (when ready)
+static const String supabaseUrl = 'YOUR_SUPABASE_URL';
+static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+```
+
+### Building
+```bash
+# Android APK
+.\build_android.bat
+
+# Windows EXE
+.\build_windows.bat
+```
+
+---
+
+## 🔗 Related Project
+
+**[printshop-local](https://github.com/your-org/printshop-local)** — Flask backend server
+- REST API for order management
+- SQLite database with 7 models
+- Real-time order queue
+- QR code generation
+- AI print optimizer
+- Employee management
+- Cashier system
+- Automatic backups
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+flutter test
+
+# Run specific test
+flutter test test/api_service_test.dart
+```
+
+---
+
+## 📁 Project Structure
+
+```
+lib/
+├── main.dart                    # Entry point
+├── app.dart                     # App configuration & routing
+├── config/                      # App configuration, theme, routes
+├── models/                      # Data models (Order, Worker, Customer)
+├── services/                    # API, Supabase, Connectivity, Notifications, Print
+├── providers/                   # State management (Auth, Orders, Queue, Stats)
+├── screens/                     # UI screens by role
+│   ├── customer/                # Upload, Confirm, Track
+│   ├── worker/                  # Dashboard, Order Detail
+│   ├── manager/                 # Dashboard, Workers, Reports, Customers, Settings
+│   └── shared/                  # Splash, Login, Error
+├── widgets/                     # Reusable components
+└── utils/                       # Formatters, Validators, Helpers, Cache
+```
+
+---
+
+## 🛣 Roadmap
+
+- [ ] App Store / Play Store publishing
+- [ ] Multi-branch support
+- [ ] SMS notifications
+- [ ] Real-time WebSocket updates
+- [ ] Barcode/QR scanner for order pickup
+- [ ] Multi-language support (Arabic, French, English)
+- [ ] Dark mode toggle
+
+---
+
+## 📄 License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+*Built with ❤️ for LAIDANI PHONE — الطباعة السريعة والاحترافية*
