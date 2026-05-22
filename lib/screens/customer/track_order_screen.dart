@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../models/order.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../utils/formatters.dart';
 
@@ -150,6 +151,14 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                       ),
                       const Divider(),
                       _detailRow('رقم الطلب', '#${_trackedOrder!.orderNumber}'),
+                      Consumer<AuthProvider>(
+                        builder: (context, auth, _) {
+                          if (auth.customerNumber != null) {
+                            return _detailRow('رقم الزبون', auth.customerNumber!);
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                       _detailRow('رقم الهاتف', Formatters.phone(_trackedOrder!.customerPhone)),
                       _detailRow('عدد النسخ', '${_trackedOrder!.copies}'),
                       _detailRow('السعر', Formatters.price(_trackedOrder!.price)),

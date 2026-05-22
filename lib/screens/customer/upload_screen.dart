@@ -66,6 +66,7 @@ class _UploadScreenState extends State<UploadScreen> {
 
     try {
       final api = context.read<ApiService>();
+      final auth = context.read<AuthProvider>();
       final submission = OrderSubmission(
         computerId: 'PC1',
         customerPhone: _phoneController.text.trim(),
@@ -76,6 +77,7 @@ class _UploadScreenState extends State<UploadScreen> {
         paperSize: _paperSize,
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
         isDuplex: _isDuplex,
+        customerNumber: auth.customerNumber,
       );
 
       final order = await api.submitOrder(submission);

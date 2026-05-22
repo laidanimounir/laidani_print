@@ -248,6 +248,7 @@ class OrderSubmission {
   final String paperSize;
   final String? notes;
   final bool isDuplex;
+  final String? customerNumber;
 
   OrderSubmission({
     required this.computerId,
@@ -259,6 +260,7 @@ class OrderSubmission {
     this.paperSize = 'A4',
     this.notes,
     this.isDuplex = false,
+    this.customerNumber,
   });
 
   Map<String, dynamic> toFormData() {
@@ -270,6 +272,7 @@ class OrderSubmission {
       'paper_size': paperSize,
       'notes': notes ?? '',
       'is_duplex': isDuplex ? '1' : '0',
+      if (customerNumber != null) 'customer_number': customerNumber,
     };
   }
 }
