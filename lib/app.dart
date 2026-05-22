@@ -18,6 +18,7 @@ import 'screens/manager/workers_screen.dart';
 import 'screens/shared/error_screen.dart';
 import 'screens/shared/login_screen.dart';
 import 'screens/shared/splash_screen.dart';
+import 'screens/shared/unauthorized_screen.dart';
 import 'screens/worker/order_detail_screen.dart';
 import 'screens/worker/worker_dashboard_screen.dart';
 import 'services/api_service.dart';
@@ -56,6 +57,19 @@ class LaidaniApp extends StatelessWidget {
   }
 
   Route<dynamic>? _generateRoute(RouteSettings settings) {
+    Widget routeGuard(BuildContext context, UserRole allowedRole, Widget child) {
+      final auth = context.read<AuthProvider>();
+      final role = auth.role;
+      if (allowedRole == UserRole.customer) {
+        if (role != UserRole.customer) return const UnauthorizedScreen();
+      } else if (allowedRole == UserRole.worker) {
+        if (role != UserRole.worker && role != UserRole.manager) return const UnauthorizedScreen();
+      } else if (allowedRole == UserRole.manager) {
+        if (role != UserRole.manager) return const UnauthorizedScreen();
+      }
+      return child;
+    }
+
     switch (settings.name) {
       case AppRoutes.splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
@@ -64,39 +78,50 @@ class LaidaniApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const LoginScreen());
 
       case AppRoutes.customerUpload:
-        return MaterialPageRoute(builder: (_) => const UploadScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.customer, const UploadScreen()));
 
       case AppRoutes.customerConfirm:
         final order = settings.arguments as Order;
-        return MaterialPageRoute(builder: (_) => ConfirmScreen(order: order));
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.customer, ConfirmScreen(order: order)));
 
       case AppRoutes.customerTrack:
-        return MaterialPageRoute(builder: (_) => const TrackOrderScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.customer, const TrackOrderScreen()));
 
       case AppRoutes.workerDashboard:
-        return MaterialPageRoute(builder: (_) => const WorkerDashboardScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.worker, const WorkerDashboardScreen()));
 
       case AppRoutes.orderDetail:
         final order = settings.arguments as Order;
-        return MaterialPageRoute(builder: (_) => OrderDetailScreen(order: order));
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.worker, OrderDetailScreen(order: order)));
 
       case AppRoutes.managerDashboard:
-        return MaterialPageRoute(builder: (_) => const ManagerDashboardScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.manager, const ManagerDashboardScreen()));
 
       case AppRoutes.managerWorkers:
-        return MaterialPageRoute(builder: (_) => const WorkersScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.manager, const WorkersScreen()));
 
       case AppRoutes.managerReports:
-        return MaterialPageRoute(builder: (_) => const ReportsScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.manager, const ReportsScreen()));
 
       case AppRoutes.managerCustomers:
-        return MaterialPageRoute(builder: (_) => const CustomersScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.manager, const CustomersScreen()));
 
       case AppRoutes.managerCustomerDetail:
-        return MaterialPageRoute(builder: (_) => const CustomersScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.manager, const CustomersScreen()));
 
       case AppRoutes.managerSettings:
-        return MaterialPageRoute(builder: (_) => const SettingsScreen());
+        return MaterialPageRoute(builder: (ctx) =>
+            routeGuard(ctx, UserRole.manager, const SettingsScreen()));
 
       default:
         return MaterialPageRoute(
