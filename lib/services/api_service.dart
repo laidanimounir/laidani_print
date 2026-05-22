@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import '../config/app_config.dart';
 import '../models/order.dart';
 import '../models/worker.dart';
@@ -230,7 +232,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> getReports({String? range}) async {
     try {
-      final response = await _dio.get('$_baseUrl/manager/reports', queryParameters: {
+      final response = await _dio.get('$_baseUrl/api/reports', queryParameters: {
         if (range != null) 'range': range,
       });
       return response.data as Map<String, dynamic>;
@@ -295,6 +297,49 @@ class ApiService {
       await _dio.post('$_baseUrl/manager/settings', data: data);
     } on DioException catch (e) {
       throw ApiException('فشل حفظ الإعدادات', e.response?.statusCode ?? 0);
+    }
+  }
+
+  Future<void> exportReports({String? range}) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final filePath = '${dir.path}/report_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      await _dio.download(
+        '$_baseUrl/manager/reports/export',
+        filePath,
+        queryParameters: {if (range != null) 'range': range},
+      );
+      await OpenFile.open(filePath);
+    } on DioException catch (e) {
+      throw ApiException('فشل تصدير التقرير', e.response?.statusCode ?? 0);
+    }
+  }
+
+  Future<void> deleteBackup(String filename) async {
+    try {
+      await _dio.post('$_baseUrl/manager/backups/delete/$filename');
+    } on DioException catch (e) {
+      throw ApiException('فشل حذف النسخة الاحتياطية', e.response?.statusCode ?? 0);
+    }
+  }
+
+  Future<Map<String, dynamic>> optimizeOrder(int orderId, {List<String>? fixes}) async {
+    try {
+      final response = await _dio.post('$_baseUrl/worker/optimize/$orderId', data: {
+        'fixes': fixes ?? [],
+      });
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw ApiException('فشل تحسين الملف', e.response?.statusCode ?? 0);
+    }
+  }
+
+  Future<Map<String, dynamic>> redirectOrder(int orderId, String targetPc) async {
+    try {
+      final response = await _dio.post('$_baseUrl/api/queue/redirect/$orderId/$targetPc');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw ApiException('فشل تحويل الطلب', e.response?.statusCode ?? 0);
     }
   }
 }

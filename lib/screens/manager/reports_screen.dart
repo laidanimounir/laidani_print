@@ -162,10 +162,23 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                             IconButton(
                                               icon: const Icon(Icons.download),
                                               tooltip: 'تصدير PDF',
-                                              onPressed: () {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(content: Text('تصدير PDF غير متوفر بعد')),
-                                                );
+                                              onPressed: () async {
+                                                try {
+                                                  final api = context.read<ApiService>();
+                                                  await api.exportReports(range: _selectedRange);
+                                                } on ApiException catch (e) {
+                                                  if (context.mounted) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(content: Text(e.message), backgroundColor: AppColors.danger),
+                                                    );
+                                                  }
+                                                } catch (e) {
+                                                  if (context.mounted) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(content: Text('فشل تصدير التقرير'), backgroundColor: AppColors.danger),
+                                                    );
+                                                  }
+                                                }
                                               },
                                             ),
                                           ],
