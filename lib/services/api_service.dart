@@ -20,6 +20,7 @@ class ApiService {
       headers: {'Accept': 'application/json'},
     ));
     _dio.options.extra['withCredentials'] = true;
+    _dio.interceptors.add(_RetryInterceptor(_dio));
   }
 
   String get _baseUrl => _connectivity.baseUrl;
@@ -374,6 +375,32 @@ class ApiService {
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw ApiException('فشل تحويل الطلب', e.response?.statusCode ?? 0);
+    }
+  }
+}
+
+class _RetryInterceptor extends Interceptor {
+  final Dio _dio;
+  _RetryInterceptor(this._dio);
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    final options = err.requestOptions;
+    final retries = options.extra['retry_count'] as int? ?? 0;
+    final isNetworkError = err.type == DioExceptionType.connectionError ||
+        err.type == DioExceptionType.connectionTimeout ||
+        err.type == DioExceptionType.receiveTimeout ||
+        err.type == DioExceptionType.sendTimeout;
+
+    if (isNetworkError && retries < 3) {
+      final delay = [1, 2, 4][retries];
+      options.extra['retry_count'] = retries + 1;
+      Future.delayed(Duration(seconds: delay), () {
+        _dio.fetch(options).then((r) => handler.resolve(r),
+            onError: (e) => handler.reject(e as DioException));
+      });
+    } else {
+      handler.next(err);
     }
   }
 }

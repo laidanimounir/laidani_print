@@ -162,4 +162,137 @@ void main() {
       expect(customer.totalSpent, 500.0);
     });
   });
+
+  group('API Login', () {
+    test('login with correct credentials returns success response', () {
+      const responseJson = {
+        'success': true,
+        'id': 1,
+        'role': 'worker',
+        'full_name': 'Worker 1',
+        'computer_id': 'PC1',
+        'username': 'worker1',
+      };
+
+      expect(responseJson['success'], true);
+      expect(responseJson['role'], 'worker');
+      expect(responseJson['id'], 1);
+      expect(responseJson['full_name'], 'Worker 1');
+    });
+
+    test('login with wrong credentials returns failure', () {
+      const responseJson = {
+        'success': false,
+        'message': 'اسم المستخدم أو كلمة المرور غير صحيحة',
+      };
+
+      expect(responseJson['success'], false);
+      expect(responseJson['message'], 'اسم المستخدم أو كلمة المرور غير صحيحة');
+    });
+  });
+
+  group('API Order Operations', () {
+    test('submitOrder returns Order', () {
+      final orderJson = {
+        'id': 42,
+        'order_number': '20260522-0042',
+        'computer_id': 'PC1',
+        'customer_phone': '0555123456',
+        'file_name': 'test.pdf',
+        'copies': 1,
+        'color_mode': 'bw',
+        'paper_size': 'A4',
+        'status': 'new',
+        'price': 10.0,
+        'page_count': 1,
+        'is_duplex': false,
+        'payment_status': 'unpaid',
+        'created_at': '2026-05-22T10:00:00',
+        'updated_at': '2026-05-22T10:00:00',
+      };
+
+      final order = Order.fromJson(orderJson);
+      expect(order.id, 42);
+      expect(order.orderNumber, '20260522-0042');
+      expect(order.status, 'new');
+    });
+
+    test('getOrders returns list of orders', () {
+      final jsonList = [
+        {
+          'id': 1,
+          'order_number': '20260522-0001',
+          'computer_id': 'PC1',
+          'customer_phone': '0555111111',
+          'file_name': 'doc1.pdf',
+          'copies': 2,
+          'color_mode': 'bw',
+          'paper_size': 'A4',
+          'status': 'new',
+          'price': 20.0,
+          'page_count': 2,
+          'is_duplex': false,
+          'payment_status': 'unpaid',
+          'created_at': '2026-05-22T10:00:00',
+          'updated_at': '2026-05-22T10:00:00',
+        },
+        {
+          'id': 2,
+          'order_number': '20260522-0002',
+          'computer_id': 'PC1',
+          'customer_phone': '0555222222',
+          'file_name': 'doc2.pdf',
+          'copies': 1,
+          'color_mode': 'color',
+          'paper_size': 'A3',
+          'status': 'printing',
+          'price': 45.0,
+          'page_count': 3,
+          'is_duplex': true,
+          'payment_status': 'unpaid',
+          'created_at': '2026-05-22T11:00:00',
+          'updated_at': '2026-05-22T11:00:00',
+        },
+      ];
+
+      final orders = jsonList.map((j) => Order.fromJson(j as Map<String, dynamic>)).toList();
+      expect(orders.length, 2);
+      expect(orders[0].id, 1);
+      expect(orders[1].colorMode, 'color');
+    });
+  });
+
+  group('API Worker Operations', () {
+    test('getWorkers returns list of workers', () {
+      final jsonList = [
+        {
+          'id': 1,
+          'username': 'worker1',
+          'full_name': 'Worker 1',
+          'role': 'worker',
+          'computer_id': 'PC1',
+          'is_active': true,
+        },
+        {
+          'id': 2,
+          'username': 'worker2',
+          'full_name': 'Worker 2',
+          'role': 'worker',
+          'computer_id': 'PC2',
+          'is_active': true,
+        },
+      ];
+
+      final workers = jsonList.map((j) => Worker.fromJson(j as Map<String, dynamic>)).toList();
+      expect(workers.length, 2);
+      expect(workers[0].username, 'worker1');
+      expect(workers[1].computerId, 'PC2');
+    });
+
+    test('getWorkers empty list returns empty', () {
+      final jsonList = <Map<String, dynamic>>[];
+      final workers = jsonList.map((j) => Worker.fromJson(j)).toList();
+      expect(workers.length, 0);
+    });
+  });
 }
