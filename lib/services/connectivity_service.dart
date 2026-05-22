@@ -84,6 +84,15 @@ class ConnectivityService extends ChangeNotifier {
     if (_isChecking) return;
     _isChecking = true;
 
+    // Windows desktop: always connect to local Flask, skip network checks
+    if (!kIsWeb && Platform.isWindows) {
+      _activeBaseUrl = 'http://127.0.0.1:5000';
+      _mode = ConnectionMode.local;
+      _isChecking = false;
+      notifyListeners();
+      return;
+    }
+
     if (await isLocalAvailable()) {
       _mode = ConnectionMode.local;
     } else {
