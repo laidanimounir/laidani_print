@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/worker.dart';
@@ -13,6 +14,7 @@ class AuthProvider extends ChangeNotifier {
   UserRole _role = UserRole.customer;
   bool _loading = false;
   String? _error;
+  String? _customerNumber;
   Timer? _inactivityTimer;
 
   AuthProvider(this._apiService);
@@ -26,6 +28,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isWorker => _role == UserRole.worker;
   bool get isCustomer => _role == UserRole.customer;
   bool get isLoggedIn => _currentWorker != null;
+  String? get customerNumber => _customerNumber;
 
   Future<bool> login(String username, String password) async {
     _loading = true;
@@ -66,20 +69,22 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final savedId = prefs.getInt('worker_id');
     final savedRole = prefs.getString('worker_role');
-    final savedName = prefs.getString('worker_name');
-    final savedUsername = prefs.getString('worker_username');
-    final savedPc = prefs.getString('worker_computer');
-    final savedTime = prefs.getInt('login_time');
 
     if (savedId != null && savedRole != null) {
-      // Check session hasn't expired
+      final savedName = prefs.getString('worker_name');
+      final savedUsername = prefs.getString('worker_username');
+      final savedPc = prefs.getString('worker_computer');
+      final savedTime = prefs.getInt('login_time');
+
       if (savedTime == null) {
         await _clearSession();
+        _loadCustomerNumber(prefs);
         return;
       }
       final elapsed = DateTime.now().millisecondsSinceEpoch - savedTime;
       if (elapsed > 12 * 60 * 60 * 1000) {
         await _clearSession();
+        _loadCustomerNumber(prefs);
         return;
       }
 
@@ -93,7 +98,21 @@ class AuthProvider extends ChangeNotifier {
       _role = savedRole == 'manager' ? UserRole.manager : UserRole.worker;
       _startInactivityTimer();
       notifyListeners();
+    } else {
+      _loadCustomerNumber(prefs);
     }
+  }
+
+  void _loadCustomerNumber(SharedPreferences prefs) {
+    var number = prefs.getString('customer_number');
+    if (number == null) {
+      final random = Random();
+      final digits = (random.nextInt(9000) + 1000).toString();
+      number = 'CUST-$digits';
+      prefs.setString('customer_number', number);
+    }
+    _customerNumber = number;
+    notifyListeners();
   }
 
   void setCustomerRole() {

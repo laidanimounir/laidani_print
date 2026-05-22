@@ -6,6 +6,7 @@ import '../../config/app_config.dart';
 import '../../config/routes.dart';
 import '../../config/theme.dart';
 import '../../models/order.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../utils/formatters.dart';
 import '../../utils/helpers.dart';
@@ -258,7 +259,41 @@ class _UploadScreenState extends State<UploadScreen> {
               ],
 
               if (_files.isNotEmpty) ...[
-                const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // Customer number
+              Consumer<AuthProvider>(
+                builder: (context, auth, _) {
+                  if (auth.customerNumber != null) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.person_outline, color: AppColors.primary, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'رقمك: ${auth.customerNumber}',
+                            style: GoogleFonts.cairo(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+              const SizedBox(height: 24),
 
                 // Price
                 Container(
