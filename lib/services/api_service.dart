@@ -124,9 +124,10 @@ class ApiService {
     }
   }
 
-  Future<void> duplexStatus(int orderId) async {
+  Future<Map<String, dynamic>> duplexStatus(int orderId) async {
     try {
-      await _dio.get('$_baseUrl/worker/duplex/status/$orderId');
+      final response = await _dio.get('$_baseUrl/api/duplex/status/$orderId');
+      return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw ApiException('فشل الحصول على حالة الطباعة', e.response?.statusCode ?? 0);
     }
