@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -58,7 +60,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         Navigator.pushReplacementNamed(context, AppRoutes.workerDashboard);
       }
     } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.customerUpload);
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+        Navigator.pushReplacementNamed(context, AppRoutes.login);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.customerUpload);
+      }
     }
   }
 
