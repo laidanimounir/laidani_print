@@ -8,9 +8,17 @@ enum ConnectionMode { unknown, local, supabase, offline }
 
 class ConnectivityService extends ChangeNotifier {
   ConnectionMode _mode = ConnectionMode.unknown;
-  String _activeBaseUrl = AppConfig.defaultLocalIP;
+  String _activeBaseUrl = _defaultLocalUrl();
   Timer? _checkTimer;
   bool _isChecking = false;
+
+  static String _defaultLocalUrl() {
+    if (kIsWeb) return AppConfig.defaultLocalIP;
+    try {
+      if (Platform.isAndroid) return 'http://10.0.2.2:5000';
+    } catch (_) {}
+    return 'http://127.0.0.1:5000';
+  }
 
   ConnectionMode get mode => _mode;
   String get baseUrl => _activeBaseUrl;
@@ -46,24 +54,28 @@ class ConnectivityService extends ChangeNotifier {
 
   // ping Flask server to confirm local availability
   Future<bool> isLocalAvailable() async {
-    try {
-      final response = await http
-          .get(Uri.parse('$_activeBaseUrl/api/stats/today'))
-          .timeout(AppConfig.connectionTimeout);
-      return response.statusCode == 200;
-    } catch (_) {
-      // Fall back: try every known station IP
-      for (final ip in AppConfig.computerIPs.values) {
-        try {
-          final response = await http
-              .get(Uri.parse('$ip/api/stats/today'))
-              .timeout(const Duration(seconds: 2));
-          if (response.statusCode == 200) {
-            _activeBaseUrl = ip;
-            return true;
-          }
-        } catch (_) {}
-      }
+    // Order of attempts: localhost → emulator → config IPs
+    final candidates = <String>[
+      'http://127.0.0.1:5000',
+      'http://10.0.2.2:5000',
+      ...AppConfig.computerIPs.values,
+    ];
+    // Deduplicate while preserving order
+    final seen = <String>{};
+    final unique = <String>[];
+    for (final url in candidates) {
+      if (seen.add(url)) unique.add(url);
+    }
+    for (final url in unique) {
+      try {
+        final response = await http
+            .get(Uri.parse('$url/api/stats/today'))
+            .timeout(const Duration(seconds: 2));
+        if (response.statusCode == 200) {
+          _activeBaseUrl = url;
+          return true;
+        }
+      } catch (_) {}
     }
     return false;
   }
