@@ -3,16 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_config.dart';
+import '../../config/routes.dart';
 import '../../config/theme.dart';
-import '../../models/customer.dart';
-import '../../models/file_item.dart';
 import '../../models/order.dart';
 import '../../services/api_service.dart';
-import '../../services/connectivity_service.dart';
 import '../../utils/formatters.dart';
 import '../../utils/helpers.dart';
 import '../../utils/validators.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/connection_indicator.dart';
 import '../../widgets/file_picker_zone.dart';
 
 class UploadScreen extends StatefulWidget {
