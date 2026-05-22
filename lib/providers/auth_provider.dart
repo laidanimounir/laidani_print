@@ -43,7 +43,7 @@ class AuthProvider extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _error = loginResult['error'] as String? ?? 'خطأ في تسجيل الدخول';
+        _error = loginResult['message'] as String? ?? 'خطأ في تسجيل الدخول';
         _loading = false;
         notifyListeners();
         return false;

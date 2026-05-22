@@ -17,6 +17,7 @@ class ApiService {
       receiveTimeout: AppConfig.connectionTimeout,
       headers: {'Accept': 'application/json'},
     ));
+    _dio.options.extra['withCredentials'] = true;
   }
 
   String get _baseUrl => _connectivity.baseUrl;
@@ -169,7 +170,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> login(String username, String password) async {
     try {
-      final response = await _dio.post('$_baseUrl/worker/login', data: {
+      final response = await _dio.post('$_baseUrl/api/login', data: {
         'username': username,
         'password': password,
       });
