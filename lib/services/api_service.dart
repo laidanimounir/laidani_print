@@ -183,13 +183,26 @@ class ApiService {
 
   Future<Map<String, dynamic>> login(String username, String password) async {
     try {
-      final response = await _dio.post('$_baseUrl/api/login', data: {
+      final url = '$_baseUrl/api/login';
+      print('Login: POST $url');
+      final response = await _dio.post(url, data: {
         'username': username,
         'password': password,
       });
+      print('Login Status Code: ${response.statusCode}');
+      print('Login Response: ${response.data}');
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw ApiException('فشل تسجيل الدخول', e.response?.statusCode ?? 0);
+      print('Login DioException type: ${e.type}');
+      print('Login DioException status: ${e.response?.statusCode}');
+      print('Login DioException data: ${e.response?.data}');
+      final serverMsg = e.response?.data is Map
+          ? (e.response!.data as Map)['message'] as String?
+          : null;
+      throw ApiException(
+        serverMsg ?? 'فشل تسجيل الدخول',
+        e.response?.statusCode ?? 0,
+      );
     }
   }
 
